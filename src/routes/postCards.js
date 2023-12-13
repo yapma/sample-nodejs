@@ -5,7 +5,9 @@ const PostCardRepository = require('../repositories/postCardRepository.js');
 const PostCard = require('../models/postCard.js');
 const Category = require('../models/category.js');
 
-router.get('/', async (req, res) => {
+const { authorize } = require('../common/authorize.js');
+
+router.get('/', authorize, async (req, res) => {
     try {
         PostCardRepository.getAllPostCards((err, card) => {
             if (err) {
@@ -23,7 +25,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', authorize, async (req, res) => {
     try {
         const id = req.params.id;
         PostCardRepository.getPostCardById(id, (err, card) => {
@@ -42,7 +44,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', (req, res) => {
+router.post('/', authorize, (req, res) => {
     const { name, description, category } = req.body;
     const categoryObj = new Category(category);
     const card = new PostCard(name, description, categoryObj);
@@ -50,7 +52,7 @@ router.post('/', (req, res) => {
     res.status(201).json({ message: 'PostCard created successfully' });
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', authorize, (req, res) => {
     const { id } = req.params;
     const { name, description } = req.body;
     const card = new PostCard(name, description, null)
@@ -58,7 +60,7 @@ router.put('/:id', (req, res) => {
     res.status(200).json({ message: 'PostCard updated successfully' });
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authorize, (req, res) => {
     const { id } = req.params;
     PostCardRepository.deletePostCardById(id);
     res.status(200).json({ message: 'PostCard deleted successfully' });

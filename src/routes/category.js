@@ -3,7 +3,9 @@ const router = express.Router();
 
 const CategoryRepository = require('../repositories/categoryRepository.js');
 
-router.get('/', async (req, res) => {
+const { authorize } = require('../common/authorize.js');
+
+router.get('/', authorize, async (req, res) => {
     try {
         CategoryRepository.getAllCategories((err, categories) => {
             if (err) {
