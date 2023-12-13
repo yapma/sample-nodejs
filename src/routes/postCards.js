@@ -3,6 +3,7 @@ const router = express.Router();
 
 const PostCardRepository = require('../repositories/postCardRepository.js');
 const PostCard = require('../models/postCard.js');
+const Category = require('../models/category.js');
 
 router.get('/', async (req, res) => {
     try {
@@ -22,17 +23,37 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        PostCardRepository.getPostCardById(id, (err, card) => {
+            if (err) {
+                res.status(500).json({ error: 'Internal server error' });
+                return;
+            }
+            if (!card) {
+                res.status(404).json({ error: 'PostCard not found' });
+                return;
+            }
+            res.status(200).json(card);
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 router.post('/', (req, res) => {
     const { name, description, category } = req.body;
-    const card = new PostCard(name, description, category)
+    const categoryObj = new Category(category);
+    const card = new PostCard(name, description, categoryObj);
     PostCardRepository.createPostCard(card);
     res.status(201).json({ message: 'PostCard created successfully' });
 });
 
 router.put('/:id', (req, res) => {
     const { id } = req.params;
-    const { name, description, category } = req.body;
-    const card = new PostCard(name, description, category)
+    const { name, description } = req.body;
+    const card = new PostCard(name, description, null)
     PostCardRepository.updatePostCardById(id, card);
     res.status(200).json({ message: 'PostCard updated successfully' });
 });
